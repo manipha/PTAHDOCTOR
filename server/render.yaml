@@ -1,0 +1,10 @@
+service: 
+  type: web
+  name: ptah_admin_server
+  env: node
+  plan: free # หรือแผนที่คุณต้องการ
+  buildCommand: npm install
+  startCommand: npm run server
+  envVars:
+    - key: NODE_ENV
+      value: production
