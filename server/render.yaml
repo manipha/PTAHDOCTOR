@@ -1,10 +1,24 @@
-service: 
-  type: web
-  name: ptah_admin_server
-  env: node
-  plan: free # หรือแผนที่คุณต้องการ
-  buildCommand: npm install
-  startCommand: npm run server
-  envVars:
-    - key: NODE_ENV
-      value: production
+services:
+  - type: web
+    name: ptah_admin_server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5100
+      - key: MONGO_URL
+        value: mongodb+srv://sasithornsorn:Sasi12345678@cluster0.faewtst.mongodb.net/Homeward
+      - key: JWT_SECRET
+        value: secret
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      - key: CLOUD_NAME
+        value: dteuvd2i7
+      - key: CLOUD_API_KEY
+        value: 934186832357724
+      - key: CLOUD_API_SECRET
+        value: biX76oe4Q457mUm9Ielk5frW_j0
