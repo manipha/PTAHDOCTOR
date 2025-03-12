@@ -1,11 +1,7 @@
 import { FormRow, FormRowSelect, SubmitBtn } from ".";
 import Wrapper from "../wrappers/SearchContainer";
 import { Form, useSubmit, Link } from "react-router-dom";
-import {
-  TYPEPOSTURES,
-  TYPESTATUS,
-  POSTURES_SORT_BY,
-} from "../../../../utils/constants";
+
 import { useAllPatientContext } from "../../pages/AllPatient";
 
 
@@ -63,14 +59,14 @@ const SearchContainer = () => {
             }}
           /> */}
 
-          <FormRowSelect
+          {/*<FormRowSelect
             name="เรียงลำดับ"
             defaultValue={sort}
             list={[...Object.values(POSTURES_SORT_BY)]}
             onChange={(e) => {
               submit(e.currentTarget.form);
             }}
-          />
+          /> */}
           {/* <Link to="/dashboard/all-patient" className="btn form-btn delete-btn">
             Reset Search Values
           </Link> */}
