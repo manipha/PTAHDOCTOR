@@ -104,6 +104,7 @@ io.on('connection', (socket) => {
 // Connect to MongoDB and Start Server
 const port = process.env.PORT || 5100;
 
+
 const connectDBAndStartServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL, {
