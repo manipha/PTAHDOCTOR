@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../errors"
+		},
+		{
+			"path": "../middleware"
+		},
+		{
+			"path": "../models"
+		},
+		{
+			"path": "../publics"
+		},
+		{
+			"path": "../routes"
+		},
+		{
+			"path": "../services"
+		},
+		{
+			"path": "../utils"
+		}
+	]
+}
