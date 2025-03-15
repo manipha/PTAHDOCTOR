@@ -4,20 +4,25 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 
+// แก้ไข URL socket ตามจริง
 const socket = io("http://localhost:5100", { reconnection: true });
 
 const RespondBlog = ({ currentUser }) => {
   const location = useLocation();
   const { post } = location.state || {};
+
+  // State ของคอมเมนต์และ reply
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [newReply, setNewReply] = useState("");
   const [replyTo, setReplyTo] = useState(null);
 
+  // ถ้าไม่มีข้อมูล post ส่งมาจริง ๆ
   if (!post) {
     return <p>ไม่พบข้อมูลกระทู้</p>;
   }
 
+  // โหลดคอมเมนต์จาก Server + ตั้งค่า Socket
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -30,29 +35,33 @@ const RespondBlog = ({ currentUser }) => {
 
     fetchComments();
 
+    // ฟัง event "new-comment" จาก socket
     socket.on("new-comment", (updatedComments) => {
       setComments(updatedComments);
     });
 
+    // ฟัง event "comment-deleted"
     socket.on("comment-deleted", ({ commentId }) => {
       setComments((prevComments) =>
         prevComments.filter((comment) => comment._id !== commentId)
       );
     });
 
+    // ฟัง event "reply-deleted"
     socket.on("reply-deleted", ({ commentId, replyId }) => {
       setComments((prevComments) =>
         prevComments.map((comment) =>
           comment._id === commentId
             ? {
-                ...comment,
-                replies: comment.replies.filter((reply) => reply._id !== replyId),
-              }
+              ...comment,
+              replies: comment.replies.filter((reply) => reply._id !== replyId),
+            }
             : comment
         )
       );
     });
 
+    // ลบการฟัง event เมื่อ component unmount
     return () => {
       socket.off("new-comment");
       socket.off("comment-deleted");
@@ -60,6 +69,7 @@ const RespondBlog = ({ currentUser }) => {
     };
   }, [post._id]);
 
+  // ฟังก์ชันเพิ่มคอมเมนต์
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) {
@@ -76,6 +86,7 @@ const RespondBlog = ({ currentUser }) => {
         setNewComment("");
         toast.success("เพิ่มความคิดเห็นสำเร็จ");
         setComments(data.post.comments);
+        // แจ้ง socket ว่ามี comment ใหม่
         socket.emit("comment", data.post.comments);
       }
     } catch (error) {
@@ -83,6 +94,7 @@ const RespondBlog = ({ currentUser }) => {
     }
   };
 
+  // ฟังก์ชันตอบกลับคอมเมนต์
   const handleReplySubmit = async (e, commentId) => {
     e.preventDefault();
     if (!newReply.trim()) {
@@ -95,18 +107,20 @@ const RespondBlog = ({ currentUser }) => {
         `/api/v1/posts/comment/reply/${post._id}/${commentId}`,
         { replyText: newReply }
       );
-      if (data.success) {
-        setNewReply("");
+      if (data?.success) {
+        // setNewReply("");
         setReplyTo(null);
         toast.success("ตอบกลับความคิดเห็นสำเร็จ");
-        setComments(data.post.comments);
-        socket.emit("reply", data.post.comments);
+        // setComments(data?.post?.comments);
+        // แจ้ง socket ว่ามี reply ใหม่
+        socket.emit("reply", data?.post?.comments);
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการตอบกลับความคิดเห็น");
     }
   };
 
+  // ฟังก์ชันลบคอมเมนต์
   const handleDeleteComment = async (commentId) => {
     try {
       const { data } = await axios.delete(
@@ -123,23 +137,26 @@ const RespondBlog = ({ currentUser }) => {
     }
   };
 
+  // ฟังก์ชันลบ reply
   const handleDeleteReply = async (commentId, replyId) => {
     try {
       const { data } = await axios.delete(
         `/api/v1/posts/reply/${post._id}/${commentId}/${replyId}`
       );
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment._id === commentId
+            ? {
+              ...comment,
+              replies: comment.replies.filter((reply) => reply._id !== replyId),
+            }
+            : comment
+        )
+      );
+
       if (data.success) {
         toast.success("ลบคำตอบสำเร็จ");
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment._id === commentId
-              ? {
-                  ...comment,
-                  replies: comment.replies.filter((reply) => reply._id !== replyId),
-                }
-              : comment
-          )
-        );
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการลบคำตอบ");
@@ -148,6 +165,7 @@ const RespondBlog = ({ currentUser }) => {
 
   return (
     <div className="max-w-4xl mx-auto my-8">
+      {/* ส่วนแสดงเนื้อหากระทู้ */}
       <div className="border p-6 rounded-lg shadow-lg bg-white mb-6">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">{post.title}</h2>
         <p className="text-gray-700 mb-6 text-justify">{post.content}</p>
@@ -164,25 +182,40 @@ const RespondBlog = ({ currentUser }) => {
         </div>
       </div>
 
+      {/* ส่วนแสดงความคิดเห็นและการตอบกลับ */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-4">ความคิดเห็นทั้งหมด:</h3>
         {comments.length > 0 ? (
           <div className="space-y-4">
             {comments.map((comment) => (
               <div key={comment._id} className="p-4 border rounded-lg bg-gray-50">
+                {/* --------------------------
+                    แก้ไขส่วน "ตอบกลับโดย" 
+                    เพิ่ม fallback สำหรับ nametitle, name, surname
+                -------------------------- */}
                 <p className="font-medium text-gray-600">
                   ตอบกลับโดย:{" "}
-                  {comment.postedByPersonnel
-                    ? `${comment.postedByPersonnel.nametitle} ${comment.postedByPersonnel.name} ${comment.postedByPersonnel.surname}`
-                    : comment.postedByUser
-                    ? `${comment.postedByUser.name} ${comment.postedByUser.surname}`
-                    : "ผู้ใช้"}
+                  {comment?.postedByPersonnel ? (
+                    <>
+                      {comment?.postedByPersonnel?.nametitle || ""}{" "}
+                      {comment?.postedByPersonnel?.name || ""}{" "}
+                      {comment?.postedByPersonnel?.surname || ""}
+                    </>
+                  ) : comment?.postedByUser ? (
+                    <>
+                      {comment?.postedByUser?.name || ""}{" "}
+                      {comment?.postedByUser?.surname || ""}
+                    </>
+                  ) : (
+                    "ผู้ใช้"
+                  )}
                 </p>
 
                 <p className="text-gray-700 mt-2">{comment.text}</p>
 
+                {/* ปุ่ม "ตอบกลับ" และฟอร์มตอบกลับ */}
                 <div className="mt-4">
-                  {replyTo === comment._id ? (
+                  {replyTo == comment._id ? (
                     <form onSubmit={(e) => handleReplySubmit(e, comment._id)}>
                       <textarea
                         className="w-full p-3 border rounded-lg"
@@ -199,19 +232,56 @@ const RespondBlog = ({ currentUser }) => {
                     </form>
                   ) : (
                     <button
-                      className="text-blue-500 text-sm"
+                      className="text-blue-500 text-sm mr-2"
                       onClick={() => setReplyTo(comment._id)}
                     >
                       ตอบกลับ
                     </button>
                   )}
-                  {/* ลบการตอบกลับเฉพาะเมื่อเป็นคนที่โพสต์เอง */}
-                  {currentUser && comment.replies && comment.replies.length > 0 &&
-                    comment.replies.map((reply) => (
-                      <div key={reply._id}>
-                        {currentUser._id === reply.postedByUser?._id && (
+
+                  {/* ปุ่มลบคอมเมนต์ (ตัวอย่าง) */}
+                  {currentUser === comment.postedByUser?._id && (
+                    <button
+                      className="text-red-500 text-sm"
+                      onClick={() => handleDeleteComment(comment._id)}
+                    >
+                      ลบความคิดเห็น
+                    </button>
+                  )}
+                </div>
+
+                {/* แสดง replies */}
+                {comment.replies && comment.replies.length > 0 && (
+                  <div className="mt-4 ml-6 border-l-2 pl-4">
+                    {comment.replies.map((reply) => (
+                      <div key={reply._id} className="mb-2">
+                        {/* --------------------------
+                            แก้ไขส่วน "ตอบโดย"
+                            เพิ่ม fallback เช่นกัน
+                        -------------------------- */}
+                        <p className="text-gray-600 text-sm">
+                          ↪ ตอบโดย:{" "}
+                          {reply.postedByPersonnel ? (
+                            <>
+                              {reply.postedByPersonnel.nametitle || ""}{" "}
+                              {reply.postedByPersonnel.name || ""}{" "}
+                              {reply.postedByPersonnel.surname || ""}
+                            </>
+                          ) : reply.postedByUser ? (
+                            <>
+                              {reply.postedByUser.name || ""}{" "}
+                              {reply.postedByUser.surname || ""}
+                            </>
+                          ) : (
+                            "ผู้ใช้"
+                          )}
+                        </p>
+                        <p className="text-gray-700 text-sm">{reply.text}</p>
+
+                        {/* ปุ่มลบ reply (เฉพาะเจ้าของ) */}
+                        {currentUser === reply.postedByUser?._id && (
                           <button
-                            className="text-red-500 text-sm ml-2"
+                            className="text-red-500 text-xs"
                             onClick={() =>
                               handleDeleteReply(comment._id, reply._id)
                             }
@@ -219,23 +289,6 @@ const RespondBlog = ({ currentUser }) => {
                             ลบการตอบกลับ
                           </button>
                         )}
-                      </div>
-                    ))}
-                </div>
-
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="mt-4 ml-6 border-l-2 pl-4">
-                    {comment.replies.map((reply) => (
-                      <div key={reply._id} className="mb-2">
-                        <p className="text-gray-600 text-sm">
-                          ↪ ตอบโดย:{" "}
-                          {reply.postedByPersonnel
-                            ? `${reply.postedByPersonnel.nametitle} ${reply.postedByPersonnel.name} ${reply.postedByPersonnel.surname}`
-                            : reply.postedByUser
-                            ? `${reply.postedByUser.name} ${reply.postedByUser.surname}`
-                            : "ผู้ใช้"}
-                        </p>
-                        <p className="text-gray-700 text-sm">{reply.text}</p>
                       </div>
                     ))}
                   </div>
@@ -248,6 +301,7 @@ const RespondBlog = ({ currentUser }) => {
         )}
       </div>
 
+      {/* ฟอร์มเพิ่มความคิดเห็นใหม่ */}
       <form onSubmit={handleCommentSubmit}>
         <textarea
           className="w-full p-3 border rounded-lg"
