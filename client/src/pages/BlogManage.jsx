@@ -68,17 +68,13 @@ const BlogManage = () => {
                 {new Date(post.createdAt).toLocaleString()}
               </div>
             </div>
-            <p className="text-gray-700 mb-4">
-              {post.content.substring(0, 100)}...
-            </p>
+            <p className="text-gray-700 mb-4">{post.content.substring(0, 100)}...</p>
             <p className="text-blue-700 mb-4">#{post.tag}</p>
 
             <div className="text-sm text-gray-500 mb-2 flex items-center">
               <span className="font-semibold">
                 {post.postedBy
-                  ? post.postedBy.nametitle
-                    ? `${post.postedBy.nametitle} ${post.postedBy.name} ${post.postedBy.surname}`
-                    : `${post.postedBy.name} ${post.postedBy.surname}`
+                  ? post.postedBy.nametitle ? `${post.postedBy.nametitle} ${post.postedBy.name} ${post.postedBy.surname}` : `${post.postedBy.name} ${post.postedBy.surname}`
                   : "ผู้โพสต์ไม่ทราบ"}
               </span>
             </div>
