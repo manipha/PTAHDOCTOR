@@ -47,7 +47,7 @@ const Wrapper = styled.section`
     padding: 0.75rem 1rem;
     width: 28%;
     text-align: center;
-    background-color: rgb(200, 196, 255);
+    background-color: rgb(100, 196, 255);
   }
   .btn:hover {
     background-color: rgb(149, 214, 255);
