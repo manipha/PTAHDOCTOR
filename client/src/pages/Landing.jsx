@@ -16,7 +16,7 @@ const Landing = () => {
             แอปพลิเคชันช่วยเหลือการกายภาพบำบัดที่บ้าน | ฝั่งแพทย์ <hr />
           </h5>
           <h1>
-            <span>PTAHHH</span> Doctor
+            <span>PTAHHH_HH</span> Doctor
           </h1>
           {/* <Link to="/register" className="btn register-link">
             Register
