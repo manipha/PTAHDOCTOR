@@ -123,7 +123,7 @@ const EvaluatePatient = () => {
         </p>
 
         <div className="w-full flex flex-row justify-between px-4 font-thin text-gray-600">
-          <span>
+          <div className="w-full">
             {dataList.length > 3 &&
               (() => {
                 const filteredList = dataList.filter(
@@ -139,7 +139,7 @@ const EvaluatePatient = () => {
                 const formattedTime = fourthItem.timeSpent.slice(3);
 
                 return (
-                  <div className="font-bold mt-2">
+                  <div className="w-full font-bold mt-2 text-center">
                     <p>
                       รวมเวลาที่ใช้:{" "}
                       <span className="font-bold">{formattedTime}</span> นาที
@@ -147,9 +147,9 @@ const EvaluatePatient = () => {
                   </div>
                 );
               })()}
-          </span>
-          <span className="text-green-600">ประเมินโดยผู้ป่วย</span>
+          </div>
         </div>
+
 
         <div className="w-full h-full flex flex-col border-2 p-8 rounded-lg space-y-8 shadow-lg">
           {dataList && Array.isArray(dataList) && dataList.filter((o) => o.created_at && new Date(o.created_at).toISOString().split("T")[0] === date).length > 0 ? (
