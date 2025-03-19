@@ -11,7 +11,6 @@ const socket = io(process.env.VITE_REACT_APP_SOCKET_URL, {
 });
 
 //รัน localhost
-// แก้ไข URL socket ตามจริง
 // const socket = io(import.meta.env.VITE_REACT_APP_SOCKET_URL, {
 //   path: import.meta.env.VITE_REACT_APP_SOCKET_PATH,
 //   transports: ["websocket", "polling"]
@@ -218,7 +217,7 @@ const RespondBlog = ({ currentUser }) => {
                       {comment?.postedByUser?.surname || ""}
                     </>
                   ) : (
-                    "ผู้ใช้"
+                    "นายแพทย์ สิริกาญจน์ วิสุทธิวรรณ"
                   )}
                 </p>
 
