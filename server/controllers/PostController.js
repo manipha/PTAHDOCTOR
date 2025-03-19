@@ -114,7 +114,6 @@ export const createPost = async (req, res) => {
   }
 };
 
-// Add a comment to a post
 
 // Add a comment to a post
 export const addComment = async (req, res) => {
@@ -122,59 +121,38 @@ export const addComment = async (req, res) => {
   const { _id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(_id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "โพสต์ไม่ถูกต้อง" });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: "โพสต์ไม่ถูกต้อง" });
   }
 
   if (!comment || comment.trim() === "" || comment === ".") {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ message: "ต้องใส่ข้อความความคิดเห็นที่ถูกต้อง" });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: "ต้องใส่ข้อความความคิดเห็นที่ถูกต้อง" });
   }
 
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: "Authentication token is required" });
+  if (!req.user) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Authentication token is required" });
   }
 
   try {
-    const decoded = verifyJWT(token); // ตรวจสอบ token ว่า valid หรือไม่
-    console.log("Decoded Token:", decoded); // ดูว่า decoded มีค่าอย่างไร
-    console.log(
-      "User ID from decoded token:",
-      decoded?.userId,
-      "Doctor ID:",
-      decoded?.doctorId
-    ); // ตรวจสอบค่าของ userId และ doctorId
+    let userId = req.user?.userId || req.user?.doctorId;
+    let role = req.user?.role;
 
-    let userId = decoded?.userId || decoded?.doctorId;
-    let role = decoded?.role;
-
-    // ตรวจสอบว่า decoded มีข้อมูลตามที่คาดหวังหรือไม่
     if (!userId || !role) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "Role or User ID is missing in token" });
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Role or User ID is missing in token" });
     }
 
-    // ตรวจสอบ role ว่าถ้าเป็นคำนำหน้าหมอให้ปรับเป็น "doctor"
+    // แปลง role ให้เป็นค่าที่แน่นอน
     if (Object.values(PREFIXDOCTOR).includes(role)) {
-      role = "doctor"; // ถ้า role เป็นคำนำหน้าหมอให้ตั้งเป็น "doctor"
+      role = "doctor";
     } else if (role === "ผู้ป่วย") {
       role = "patient";
     }
 
-    console.log("Updated Role:", role); // เพิ่ม log ตรวจสอบค่าของ role
+    console.log("UserId:", userId);
+    console.log("Role:", role);
 
     const post = await Post.findById(_id);
     if (!post) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "ไม่พบโพสต์นี้" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: "ไม่พบโพสต์นี้" });
     }
 
     let newComment = {
@@ -183,7 +161,7 @@ export const addComment = async (req, res) => {
       postedByUser: role === "patient" ? userId : null,
     };
 
-    console.log("New Comment before save:", newComment); // ตรวจสอบค่าของ newComment
+    console.log("New Comment before save:", newComment);
 
     post.comments.push(newComment);
     await post.save();
@@ -192,16 +170,15 @@ export const addComment = async (req, res) => {
       .populate("comments.postedByPersonnel", "nametitle name surname")
       .populate("comments.postedByUser", "name surname");
 
-    console.log("Updated Post after adding comment:", updatedPost); // ดูค่าโพสต์ที่อัปเดต
+    console.log("Updated Post after adding comment:", updatedPost);
 
     res.status(StatusCodes.OK).json({ success: true, post: updatedPost });
   } catch (error) {
     console.error("Error adding comment:", error.message);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
+
 
 export const addReply = async (req, res) => {
   const { replyText } = req.body;
