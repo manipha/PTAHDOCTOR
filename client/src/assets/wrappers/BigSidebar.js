@@ -26,15 +26,16 @@ const Wrapper = styled.aside`
       align-items: center;
       padding-left: 2.5rem;
     }
-    /* .logo-component {
-      padding-left: -10rem;
-    } */
+    img.logo {
+      margin-left: -25px; /* ปรับค่า margin-left ตามที่ต้องการ */
+    }
     .nav-links {
       padding-top: 2rem;
       display: flex;
       flex-direction: column;
       padding-bottom: 60rem;
       background-color: #87cefa;
+      width: 240px;
     }
     .nav-link {
       display: flex;
@@ -51,7 +52,6 @@ const Wrapper = styled.aside`
       padding-left: 3rem;
       color: #1878b4;
       transition: var(--transition);
-      /* border-bottom: 2px solid white; */
     }
     .icon {
       font-size: 1.5rem;
@@ -67,4 +67,5 @@ const Wrapper = styled.aside`
     }
   }
 `;
+
 export default Wrapper;
