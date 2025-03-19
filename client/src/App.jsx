@@ -16,6 +16,7 @@ import {
   GraphPosture,
   RespondBlog,
   AllRankStar,
+  LinkHomeward
 } from "./pages";
 
 import { action as registerAction } from "./pages/Register";
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
           {
             path: "all-rankstar",
             element: <AllRankStar />,
+          },
+          {
+            path: "link-homeward",
+            element: <LinkHomeward />,
           },
         ],
       },
