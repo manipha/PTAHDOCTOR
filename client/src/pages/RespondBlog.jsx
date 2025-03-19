@@ -189,6 +189,7 @@ const RespondBlog = ({ currentUser }) => {
                 : `${post.postedBy.name} ${post.postedBy.surname}`
               : "ผู้โพสต์ไม่ทราบ"}
           </span>
+          
         </div>
       </div>
 
@@ -217,11 +218,14 @@ const RespondBlog = ({ currentUser }) => {
                       {comment?.postedByUser?.surname || ""}
                     </>
                   ) : (
-                    "นายแพทย์ สิริกาญจน์ วิสุทธิวรรณ"
+                    "ผู้ใช้"
                   )}
                 </p>
 
                 <p className="text-gray-700 mt-2">{comment.text}</p>
+                <p className="text-xs text-gray-500 mt-6">
+                ตอบกลับเมื่อ: {new Date(comment.created).toLocaleString("th-TH")}
+    </p>
 
                 {/* ปุ่ม "ตอบกลับ" และฟอร์มตอบกลับ */}
                 <div className="mt-4">
@@ -287,6 +291,10 @@ const RespondBlog = ({ currentUser }) => {
                           )}
                         </p>
                         <p className="text-gray-700 text-sm">{reply.text}</p>
+                        <p className="text-xs text-gray-500 mt-6">
+              ตอบกลับเมื่อ: {new Date(reply.created).toLocaleString("th-TH")}
+            </p>
+                        
 
                         {/* ปุ่มลบ reply (เฉพาะเจ้าของ) */}
                         {currentUser === reply.postedByUser?._id && (

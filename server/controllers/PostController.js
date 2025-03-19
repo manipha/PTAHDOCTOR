@@ -120,58 +120,55 @@ export const addComment = async (req, res) => {
   const { comment } = req.body;
   const { _id } = req.params;
 
+  // ตรวจสอบว่า ID โพสต์ถูกต้องหรือไม่
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: "โพสต์ไม่ถูกต้อง" });
   }
 
+  // ตรวจสอบว่ามีข้อความความคิดเห็น
   if (!comment || comment.trim() === "" || comment === ".") {
     return res.status(StatusCodes.BAD_REQUEST).json({ message: "ต้องใส่ข้อความความคิดเห็นที่ถูกต้อง" });
   }
 
-  if (!req.user) {
+  // ตรวจสอบสิทธิ์ว่า token ถูกต้อง
+  if (!req.user || (!req.user.userId && !req.user.doctorId)) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Authentication token is required" });
   }
 
   try {
-    let userId = req.user?.userId || req.user?.doctorId;
-    let role = req.user?.role;
-
-    if (!userId || !role) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Role or User ID is missing in token" });
-    }
-
-    // แปลง role ให้เป็นค่าที่แน่นอน
-    if (Object.values(PREFIXDOCTOR).includes(role)) {
-      role = "doctor";
-    } else if (role === "ผู้ป่วย") {
-      role = "patient";
-    }
-
-    console.log("UserId:", userId);
-    console.log("Role:", role);
-
+    // ดึงโพสต์จากฐานข้อมูล
     const post = await Post.findById(_id);
     if (!post) {
       return res.status(StatusCodes.NOT_FOUND).json({ message: "ไม่พบโพสต์นี้" });
     }
 
-    let newComment = {
+    // สร้างข้อมูลความคิดเห็น
+    const newComment = {
       text: comment,
-      postedByPersonnel: role === "doctor" ? userId : null,
-      postedByUser: role === "patient" ? userId : null,
     };
+
+    // ถ้าเป็นแพทย์
+    if (req.user.doctorId) {
+      newComment.postedByPersonnel = req.user.doctorId;
+    } else if (req.user.userId) {
+      // ถ้าเป็นผู้ป่วย
+      newComment.postedByUser = req.user.userId;
+    }
 
     console.log("New Comment before save:", newComment);
 
+    // เพิ่มความคิดเห็นลงในโพสต์
     post.comments.push(newComment);
     await post.save();
 
+    // โหลดโพสต์พร้อมกับข้อมูลของผู้โพสต์ความคิดเห็น
     const updatedPost = await Post.findById(_id)
       .populate("comments.postedByPersonnel", "nametitle name surname")
       .populate("comments.postedByUser", "name surname");
 
     console.log("Updated Post after adding comment:", updatedPost);
 
+    // ส่งข้อมูลกลับไปที่ Client
     res.status(StatusCodes.OK).json({ success: true, post: updatedPost });
   } catch (error) {
     console.error("Error adding comment:", error.message);
