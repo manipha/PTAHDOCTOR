@@ -42,13 +42,13 @@ export const login = async (req, res) => {
   const doctor = await Doctor.findOne({ username: req.body.username });
   if (!doctor) {
     console.log("Doctor not found");
-    throw new UnauthenticatedError("ไม่สามารถเข้าสู่ระบบได้");
+    throw new UnauthenticatedError("ชื่อผู้ใช้ไม่ถูกต้อง");
   }
 
   const isValidUser = await comparePassword(req.body.password, doctor.password);
   if (!isValidUser) {
     console.log("Invalid password");
-    throw new UnauthenticatedError("ไม่สามารถเข้าสู่ระบบได้");
+    throw new UnauthenticatedError("รหัสผ่านไม่ถูกต้อง");
   }
 
   const token = createJWT({ doctorId: doctor._id, role: doctor.nametitle });

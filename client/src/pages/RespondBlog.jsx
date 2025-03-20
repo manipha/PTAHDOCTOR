@@ -10,11 +10,10 @@ import { io } from "socket.io-client";
 //   transports: ["websocket", "polling"]
 // });
 
-//รัน localhost
 const socket = io(import.meta.env.VITE_REACT_APP_SOCKET_URL, {
-  path: import.meta.env.VITE_REACT_APP_SOCKET_PATH,
-  transports: ["websocket", "polling"]
-});
+   path: import.meta.env.VITE_REACT_APP_SOCKET_PATH,
+   transports: ["websocket", "polling"]
+ });
 
 
 const RespondBlog = ({ currentUser }) => {
