@@ -135,3 +135,54 @@ export const getFeedbackByDateAndId = async (req, res) => {
       .json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูล", details: error.message });
   }
 };
+
+
+export const getFeedbacksByDoctorId = async (req, res) => {
+  try {
+    const { doctor_id, date } = req.query; // ✅ ดึง `doctor_id` และ `date` จาก query parameter
+
+    if (!doctor_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: "กรุณาระบุ doctor_id" });
+    }
+
+    console.log(`🔍 กำลังดึง Feedbacks ของหมอ ID: ${doctor_id} ในวันที่: ${date || "ทั้งหมด"}`);
+
+    // ✅ ค้นหาข้อมูล Feedback ของแพทย์ที่ล็อกอิน
+    const query = { doctor_id };
+
+    if (date) {
+      query.evaluation_date = date; // ✅ ค้นหาข้อมูลเฉพาะวันที่กำหนด (ถ้ามี)
+    }
+
+    const feedbacks = await FeedbacksModel.find(query)
+      .populate("user_id", "name surname email") // ✅ ดึงข้อมูลผู้ป่วยที่ถูกประเมิน
+      .lean();
+
+    if (!feedbacks.length) {
+      console.log(`❌ ไม่พบข้อมูลการประเมินของหมอ ID: ${doctor_id} ในวันที่: ${date}`);
+      return res.status(StatusCodes.OK).json({ message: "ไม่พบข้อมูลการประเมิน", feedbacks: [] });
+    }
+
+    console.log(`✅ พบ Feedback จำนวน: ${feedbacks.length}`);
+
+    // ✅ จัดรูปแบบข้อมูลให้ใช้งานง่ายขึ้น
+    const formattedFeedbacks = feedbacks.map((feedback) => ({
+      _id: feedback._id,
+      patient_details: feedback.user_id, // ✅ ข้อมูลผู้ป่วย
+      feedback_type: feedback.feedback_type,
+      doctor_response: feedback.doctor_response,
+      evaluation_date: feedback.evaluation_date,
+      createdAt: feedback.createdAt,
+    }));
+
+    res.status(StatusCodes.OK).json({ feedbacks: formattedFeedbacks });
+  } catch (error) {
+    console.error("❌ Error fetching feedbacks by doctor:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "เกิดข้อผิดพลาดในการดึงข้อมูล",
+      error: error.message,
+    });
+  }
+};
+
+

@@ -16,7 +16,7 @@ import {
   GraphPosture,
   RespondBlog,
   AllRankStar,
-  LinkHomeward
+  LinkHomeward,
 } from "./pages";
 
 import { action as registerAction } from "./pages/Register";
@@ -26,6 +26,7 @@ import { loader as allpatientLoader } from "./pages/AllPatient";
 import { loader as editPatientLoader } from "./pages/EditPatient";
 import { action as editPatientAction } from "./pages/EditPatient";
 import { loader as statsLoader } from "./pages/Stats";
+
 
 
 
@@ -76,6 +77,7 @@ const router = createBrowserRouter([
             path: "blogmanage",
             element: <BlogManage />,
           },
+        
           {
             path: "all-patient",
             element: <AllPatient />,

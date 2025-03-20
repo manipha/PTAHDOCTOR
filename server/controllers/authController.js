@@ -14,27 +14,6 @@ export const register = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ msg: "doctor created" });
 };
 
-// export const login = async (req, res) => {
-//   const doctor = await Doctor.findOne({ username: req.body.username });
-
-//   const isValidUser =
-//     doctor && (await comparePassword(req.body.password, doctor.password));
-
-//   if (!isValidUser) throw new UnauthenticatedError("ไม่สามารถเข้าสู่ระบบได้");
-
-//   // const token = createJWT({ doctorId: doctor._id, role: doctor.role });
-//   const token = createJWT({ doctorId: doctor._id, role: doctor.nametitle });
-
-//   const oneDay = 1000 * 60 * 60 * 24;
-
-//   res.cookie("token", token, {
-//     httpOnly: true,
-//     expires: new Date(Date.now() + oneDay),
-//     secure: process.env.NODE_ENV === "production",
-//   });
-
-//   res.status(StatusCodes.CREATED).json({ msg: "doctor logged in" });
-// };
 
 export const login = async (req, res) => {
   console.log("Login request received:", req.body);
