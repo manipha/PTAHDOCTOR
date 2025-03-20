@@ -25,6 +25,14 @@ const Landing = () => {
           <Link to="/login" className="btn ">
             เข้าใช้งาน
           </Link>
+          <a
+        href={`https://homewarddocter.vercel.app/`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn logout-btn"
+      >
+        เว็บ Homeward
+      </a>
         </div>
         <img src={PTAH_Doctor} alt="PtahApp" className="img main-img" />
       </div>

@@ -8,7 +8,7 @@ const LinkHomeward = () => {
   return (
     <Wrapper>
       <a
-        href={`https://homewarddocter.vercel.app/?userId=${userId}`}
+        href={`https://homewarddocter.vercel.app/`}
         target="_blank"
         rel="noopener noreferrer"
         className="btn logout-btn"

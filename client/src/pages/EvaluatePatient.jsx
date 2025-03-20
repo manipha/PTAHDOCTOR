@@ -114,6 +114,10 @@ const EvaluatePatient = () => {
       console.error("บันทึก feedback ไม่สำเร็จ:", error);
     }
   };
+  
+//ตรวจสอบว่า dataList มีจำนวนมากกว่า 3 รายการหรือไม่
+//กรองข้อมูลที่ created_at ตรงกับ date
+//กรองเฉพาะข้อมูลที่ created_at ตรงกับ date + ถ้ามี น้อยกว่า 4 รายการ → คืน null ถ้ารายการที่ 4 ไม่มีค่า หรือไม่มี timeSpent → คืน null
   return (
     <Wrapper>
       <FcPrevious className="text-5xl cursor-pointer" onClick={handleBack} />
@@ -121,9 +125,8 @@ const EvaluatePatient = () => {
         <p className="font-semibold text-gray-600 text-xl text-center">
           {formatThaiDate(selectedDate)}
         </p>
-
         <div className="w-full flex flex-row justify-between px-4 font-thin text-gray-600">
-          <div className="w-full">
+          <div className="w-full"> 
             {dataList.length > 3 &&
               (() => {
                 const filteredList = dataList.filter(
