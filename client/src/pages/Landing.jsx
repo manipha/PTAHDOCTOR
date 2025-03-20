@@ -29,7 +29,7 @@ const Landing = () => {
         href={`https://homewarddocter.vercel.app/`}
         target="_blank"
         rel="noopener noreferrer"
-        className="btn logout-btn"
+        className="btn logout-btn ml-5"
       >
         เว็บ Homeward
       </a>
