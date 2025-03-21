@@ -6,7 +6,8 @@ const router = express.Router();
 
 router.route("/getfeedbackbydateandid").post(getFeedbackByDateAndId);
 router.route("/save").post(save);
-router.get("/doctor-feedbacks", getFeedbacksByDoctorId); // ✅ API ดึง Feedbacks ของแพทย์ที่ล็อกอิน
 
+router.route("/doctor-feedbacks")
+    .get(getFeedbacksByDoctorId);
 
 export default router;

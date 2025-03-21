@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import FeedbacksModel from "../models/FeedbacksModel.js";
 import Doctor from "../models/DoctorModel.js"; // Import Doctor model
+import mongoose from "mongoose";
 
 export const save = async (req, res) => {
   try {
@@ -139,50 +140,49 @@ export const getFeedbackByDateAndId = async (req, res) => {
 
 export const getFeedbacksByDoctorId = async (req, res) => {
   try {
-    const { doctor_id, date } = req.query; // ✅ ดึง `doctor_id` และ `date` จาก query parameter
+    const { doctor_id, month } = req.query;
 
     if (!doctor_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({ message: "กรุณาระบุ doctor_id" });
     }
 
-    console.log(`🔍 กำลังดึง Feedbacks ของหมอ ID: ${doctor_id} ในวันที่: ${date || "ทั้งหมด"}`);
+    if (!mongoose.Types.ObjectId.isValid(doctor_id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: "doctor_id ไม่ถูกต้อง" });
+    }
 
-    // ✅ ค้นหาข้อมูล Feedback ของแพทย์ที่ล็อกอิน
-    const query = { doctor_id };
+    const query = { doctor_id: new mongoose.Types.ObjectId(doctor_id) };
 
-    if (date) {
-      query.evaluation_date = date; // ✅ ค้นหาข้อมูลเฉพาะวันที่กำหนด (ถ้ามี)
+    if (month) {
+      const startOfMonth = new Date(`${month}-01T00:00:00.000Z`);
+      const endOfMonth = new Date(startOfMonth);
+      endOfMonth.setUTCMonth(startOfMonth.getUTCMonth() + 1);
+      endOfMonth.setUTCDate(1);
+      endOfMonth.setUTCDate(endOfMonth.getUTCDate() - 1);
+      endOfMonth.setUTCHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
     }
 
     const feedbacks = await FeedbacksModel.find(query)
-      .populate("user_id", "name surname email") // ✅ ดึงข้อมูลผู้ป่วยที่ถูกประเมิน
+      .populate("user_id", "username name surname email")
+      .populate("doctor_id", "name surname")
       .lean();
 
     if (!feedbacks.length) {
-      console.log(`❌ ไม่พบข้อมูลการประเมินของหมอ ID: ${doctor_id} ในวันที่: ${date}`);
       return res.status(StatusCodes.OK).json({ message: "ไม่พบข้อมูลการประเมิน", feedbacks: [] });
     }
 
-    console.log(`✅ พบ Feedback จำนวน: ${feedbacks.length}`);
-
-    // ✅ จัดรูปแบบข้อมูลให้ใช้งานง่ายขึ้น
-    const formattedFeedbacks = feedbacks.map((feedback) => ({
-      _id: feedback._id,
-      patient_details: feedback.user_id, // ✅ ข้อมูลผู้ป่วย
-      feedback_type: feedback.feedback_type,
-      doctor_response: feedback.doctor_response,
-      evaluation_date: feedback.evaluation_date,
-      createdAt: feedback.createdAt,
+    // ✅ เพิ่ม patient_details จาก user_id
+    const formattedFeedbacks = feedbacks.map(fb => ({
+      ...fb,
+      patient_details: fb.user_id,
     }));
 
     res.status(StatusCodes.OK).json({ feedbacks: formattedFeedbacks });
   } catch (error) {
-    console.error("❌ Error fetching feedbacks by doctor:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "เกิดข้อผิดพลาดในการดึงข้อมูล",
       error: error.message,
     });
   }
 };
-
-
