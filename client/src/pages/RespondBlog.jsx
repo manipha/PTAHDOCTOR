@@ -5,15 +5,15 @@ import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 
 // แก้ไข URL socket ตามจริง
-// const socket = io(process.env.VITE_REACT_APP_SOCKET_URL, {
-//   path: process.env.VITE_REACT_APP_SOCKET_PATH,
-//   transports: ["websocket", "polling"]
-// });
+const socket = io(process.env.VITE_REACT_APP_SOCKET_URL, {
+  path: process.env.VITE_REACT_APP_SOCKET_PATH,
+  transports: ["websocket", "polling"]
+});
 
- const socket = io(import.meta.env.VITE_REACT_APP_SOCKET_URL, {
-    path: import.meta.env.VITE_REACT_APP_SOCKET_PATH,
-    transports: ["websocket", "polling"]
-  });
+//  const socket = io(import.meta.env.VITE_REACT_APP_SOCKET_URL, {
+//     path: import.meta.env.VITE_REACT_APP_SOCKET_PATH,
+//     transports: ["websocket", "polling"]
+//   });
 
 
 const RespondBlog = ({ currentUser }) => {
