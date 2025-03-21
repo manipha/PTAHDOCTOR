@@ -123,56 +123,7 @@ const AllPatient = () => {
             <AllHeader>คนไข้ทั้งหมด</AllHeader>
             <PatientsContainer />
 
-            {/* ✅ เพิ่มข้อมูลการประเมินของแพทย์ */}
-            <div className="mt-10">
-                <h2 className="text-xl font-bold text-center">การประเมินของฉัน</h2>
-
-                {/* ✅ Dropdown เลือกเดือน */}
-                <div className="flex justify-center mt-4">
-                    <label className="mr-2 text-lg">เลือกเดือน:</label>
-                    <select
-  value={selectedMonth}
-  onChange={(e) => {
-    const newMonth = e.target.value;
-    console.log(`📌 เปลี่ยนเดือนเป็น: ${newMonth}`);
-    setSelectedMonth(newMonth);
-    setLoading(true); // 👈 เพิ่มตรงนี้ เพื่อให้ useEffect รู้ว่าเริ่มโหลดรอบใหม่
-  }}
-  className="border p-2 rounded"
->
-
-    {getMonthOptions().map((month) => (
-        <option key={month.value} value={month.value}>
-            {month.label}
-        </option>
-    ))}
-</select>
-
-                </div>
-
-                {loading ? (
-                    <p className="text-center text-lg text-gray-600">⏳ กำลังโหลดข้อมูล...</p>
-                ) : doctorFeedbacks.length > 0 ? (
-                    doctorFeedbacks.map((feedback, index) => (
-                        <div key={feedback._id} className="border p-4 mt-4 rounded-lg shadow">
-                            <div className="text-lg font-medium">
-                                {index + 1}. ผู้ป่วย: {feedback.patient_details?.fullName  || "ไม่พบข้อมูลผู้ป่วย"}
-                            </div>
-                            <p className="text-gray-600">
-                                วันที่ตอบกลับ: {new Date(feedback.createdAt).toLocaleDateString("th-TH")}
-                            </p>
-                            <p className="text-gray-800">
-                                ผลการประเมิน: <span className="font-bold">{feedback.feedback_type}</span>
-                            </p>
-                            <p className="text-gray-600">
-                                ความคิดเห็นของคุณ: {feedback.doctor_response || "ไม่มีความคิดเห็น"}
-                            </p>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-center text-lg text-gray-600">⚠️ คุณยังไม่มีการประเมิน</p>
-                )}
-            </div>
+            
         </AllPatientContext.Provider>
     );
 };

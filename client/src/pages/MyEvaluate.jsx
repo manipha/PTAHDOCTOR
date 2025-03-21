@@ -2,6 +2,8 @@ import React, { useContext, createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import customFetch from "../utils/customFetch.js";
 import { useLoaderData, useNavigate } from "react-router-dom";
+import AllHeader from "../assets/components/AllHeader.jsx";
+
 
 export const loader = async ({ request }) => {
     console.log("🌍 URL ที่โหลด:", request.url);
@@ -114,13 +116,12 @@ const MyEvaluate = () => {
         <MyEvaluateContext.Provider value={{ data, selectedMonth, setSelectedMonth, doctorFeedbacks }}>
 
             {/* ✅ เพิ่มข้อมูลการประเมินของแพทย์ */}
-            <div className="mt-10">
-                <h2 className="text-xl font-bold text-center">การประเมินของฉัน</h2>
+                          <AllHeader>การประเมินของฉัน</AllHeader>
+              
 
                 {/* ✅ Dropdown เลือกเดือน */}
-                <div className="flex justify-center mt-4">
-                    <label className="mr-2 text-lg">เลือกเดือน:</label>
-                    <select
+                <div className="flex items-center space-x-3 mt-10 mb-10">
+                <label className="text-base text-gray-700">เลือกเดือน:</label>                    <select
   value={selectedMonth}
   onChange={(e) => {
     const newMonth = e.target.value;
@@ -128,7 +129,7 @@ const MyEvaluate = () => {
     setSelectedMonth(newMonth);
     setLoading(true); // 👈 เพิ่มตรงนี้ เพื่อให้ useEffect รู้ว่าเริ่มโหลดรอบใหม่
   }}
-  className="border p-2 rounded"
+  className="border p-3 rounded"
 >
 
     {getMonthOptions().map((month) => (
@@ -144,25 +145,36 @@ const MyEvaluate = () => {
                     <p className="text-center text-lg text-gray-600">⏳ กำลังโหลดข้อมูล...</p>
                 ) : doctorFeedbacks.length > 0 ? (
                     doctorFeedbacks.map((feedback, index) => (
-                        <div key={feedback._id} className="border p-4 mt-4 rounded-lg shadow">
-                            <div className="text-lg font-medium">
+                        <div key={feedback._id}   className="border border-gray-200 p-4 mb-4 rounded-xl bg-white shadow-sm transition duration-200 hover:shadow-md"
+                        >
+                             <div className="text-base text-gray-800 mb-2">
                                 {index + 1}. ชื่อผู้ป่วย: {feedback.user_id.name} {feedback.user_id.surname}
                             </div>
-                            <p className="text-gray-600">
+                             
+                            <div className="text-sm text-gray-700 mb-1">
+  ผลการประเมิน:{" "}
+  <span
+    className={
+      feedback.feedback_type === "ทำได้ดี"
+        ? "text-green-600 font-medium"
+        : "text-orange-500 font-medium"
+    }
+  >
+    {feedback.feedback_type}
+  </span>
+</div>
+                                <div className="text-sm text-gray-600 mt-2">
+                                ข้อความจากแพทย์: {feedback.doctor_response || "ไม่มีความคิดเห็น"}
+                                </div>
+                                <div className="text-sm text-gray-500 mb-1 mt-3">
                                 วันที่ตอบกลับ: {new Date(feedback.createdAt).toLocaleDateString("th-TH")}
-                            </p>
-                            <p className="text-gray-800">
-                                ผลการประเมิน: <span className="font-bold">{feedback.feedback_type}</span>
-                            </p>
-                            <p className="text-gray-600">
-                                ความคิดเห็นของคุณ: {feedback.doctor_response || "ไม่มีความคิดเห็น"}
-                            </p>
+                                </div>
                         </div>
                     ))
                 ) : (
                     <p className="text-center text-lg text-gray-600">⚠️ คุณยังไม่มีการประเมิน</p>
                 )}
-            </div>
+          
         </MyEvaluateContext.Provider>
     );
 };
