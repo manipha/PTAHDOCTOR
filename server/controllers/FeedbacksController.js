@@ -168,9 +168,10 @@ export const getFeedbacksByDoctorId = async (req, res) => {
 
     // ✅ ดึงข้อมูล feedback พร้อมข้อมูลคนไข้
     const feedbacks = await FeedbacksModel.find(query)
-      .populate("user_id", "name surname ") // ✅ ดึงข้อมูลคนไข้
-      .lean();
-
+    .populate("user_id", "name surname")
+    .lean();
+  
+  
     if (!feedbacks.length) {
       return res.status(StatusCodes.OK).json({
         message: "ไม่พบข้อมูลการประเมิน",
@@ -187,13 +188,14 @@ export const getFeedbacksByDoctorId = async (req, res) => {
       createdAt: fb.createdAt,
       patient_details: fb.user_id
         ? {
-            name: fb.user_id.name || "ไม่พบชื่อ",
-            surname: fb.user_id.surname || "",
+            name: fb.user_id.name || fb.user_id.username || "ไม่พบชื่อ",
+            surname: fb.user_id.surname || "ไม่พบชื่อ",
             fullName: `${fb.user_id.name || "ไม่พบชื่อ"} ${fb.user_id.surname || ""}`.trim(),
           }
         : null, // ถ้าไม่มี user_id ให้เป็น null
     }));
     
+
     console.log("📌 ข้อมูล feedbacks ที่จะส่งกลับไป frontend:", formatted);
     
     return res.status(StatusCodes.OK).json({ feedbacks: formatted });

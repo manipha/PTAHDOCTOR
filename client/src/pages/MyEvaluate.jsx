@@ -21,10 +21,10 @@ export const loader = async ({ request }) => {
     }
 };
 
-const AllPatientContext = createContext();
+const MyEvaluateContext = createContext();
 
-const AllPatient = () => {
-    const { data, searchValues } = useLoaderData();
+const MyEvaluate = () => {
+    const { data } = useLoaderData();
     const navigate = useNavigate();
     
     const [doctorId, setDoctorId] = useState(null);
@@ -115,13 +115,7 @@ const AllPatient = () => {
     
     
     return (
-        <AllPatientContext.Provider value={{ data, searchValues, selectedMonth, setSelectedMonth, doctorFeedbacks }}>
-            <SearchContainer />
-            <Wrapper>
-                {/* <button onClick={() => navigate("/dashboard/add-user")}>เพิ่มผู้ป่วย</button> */}
-            </Wrapper>
-            <AllHeader>คนไข้ทั้งหมด</AllHeader>
-            <PatientsContainer />
+        <MyEvaluateContext.Provider value={{ data, selectedMonth, setSelectedMonth, doctorFeedbacks }}>
 
             {/* ✅ เพิ่มข้อมูลการประเมินของแพทย์ */}
             <div className="mt-10">
@@ -173,9 +167,9 @@ const AllPatient = () => {
                     <p className="text-center text-lg text-gray-600">⚠️ คุณยังไม่มีการประเมิน</p>
                 )}
             </div>
-        </AllPatientContext.Provider>
+        </MyEvaluateContext.Provider>
     );
 };
 
-export const useAllPatientContext = () => useContext(AllPatientContext);
-export default AllPatient;
+export const useMyEvaluateContext = () => useContext(MyEvaluateContext);
+export default MyEvaluate;

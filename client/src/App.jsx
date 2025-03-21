@@ -17,6 +17,7 @@ import {
   RespondBlog,
   AllRankStar,
   LinkHomeward,
+  MyEvaluate,
 } from "./pages";
 
 import { action as registerAction } from "./pages/Register";
@@ -26,6 +27,7 @@ import { loader as allpatientLoader } from "./pages/AllPatient";
 import { loader as editPatientLoader } from "./pages/EditPatient";
 import { action as editPatientAction } from "./pages/EditPatient";
 import { loader as statsLoader } from "./pages/Stats";
+import { loader as myevaluateLoader } from "./pages/MyEvaluate";
 
 
 
@@ -108,6 +110,11 @@ const router = createBrowserRouter([
           {
             path: "link-homeward",
             element: <LinkHomeward />,
+          },
+          {
+            path: "my-evaluate",
+            element: <MyEvaluate />,
+            loader: myevaluateLoader,
           },
         ],
       },

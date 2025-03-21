@@ -3,7 +3,10 @@ import { flushSync } from "react-dom";
 
 const feedbackSchema = new mongoose.Schema(
   {
-    user_id: { type: String, required: true },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', // สำคัญ: ต้องระบุ ref ให้ตรงกับชื่อโมเดล User
+    },
     doctor_response: { type: String, required: true },
     feedback_type: {
       type: String,

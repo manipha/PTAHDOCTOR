@@ -38,6 +38,11 @@ const links = [
     path: "all-rankstar",
     icon: <FaStar />,
   },
+  {
+    text: "ประเมินของฉัน",
+    path: "my-evaluate",
+    icon: <FaStar />,
+  },
   // {
   //   text: "เพิ่มข้อมูลคนไข้",
   //   path: "add-user",

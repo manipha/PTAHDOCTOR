@@ -14,6 +14,8 @@ export { default as GraphPosture } from "./GraphPosture";
 export { default as RespondBlog } from "./RespondBlog";
 export { default as AllRankStar } from "./AllRankStar";
 export { default as LinkHomeward } from "./LinkHomeward";
+export { default as MyEvaluate } from "./MyEvaluate";
+
 
 
 
