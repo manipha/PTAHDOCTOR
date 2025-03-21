@@ -41,7 +41,7 @@ const links = [
   {
     text: "ประเมินของฉัน",
     path: "my-evaluate",
-    icon: <FaStar />,
+    icon: <IoPeopleSharp />,
   },
   // {
   //   text: "เพิ่มข้อมูลคนไข้",
