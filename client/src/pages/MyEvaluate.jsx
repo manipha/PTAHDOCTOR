@@ -1,11 +1,7 @@
 import React, { useContext, createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import customFetch from "../utils/customFetch.js";
-import PatientsContainer from "../assets/components/PatientsContainer.jsx";
-import SearchContainer from "../assets/components/SearchContainer.jsx";
-import AllHeader from "../assets/components/AllHeader.jsx";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import Wrapper from "../assets/components/AddButton.jsx";
 
 export const loader = async ({ request }) => {
     console.log("🌍 URL ที่โหลด:", request.url);
@@ -150,7 +146,7 @@ const MyEvaluate = () => {
                     doctorFeedbacks.map((feedback, index) => (
                         <div key={feedback._id} className="border p-4 mt-4 rounded-lg shadow">
                             <div className="text-lg font-medium">
-                                {index + 1}. ผู้ป่วย: {feedback.patient_details?.fullName  || "ไม่พบข้อมูลผู้ป่วย"}
+                                {index + 1}. ชื่อผู้ป่วย: {feedback.user_id.name} {feedback.user_id.surname}
                             </div>
                             <p className="text-gray-600">
                                 วันที่ตอบกลับ: {new Date(feedback.createdAt).toLocaleDateString("th-TH")}

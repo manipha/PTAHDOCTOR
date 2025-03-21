@@ -186,15 +186,9 @@ export const getFeedbacksByDoctorId = async (req, res) => {
       feedback_type: fb.feedback_type,
       evaluation_date: fb.evaluation_date,
       createdAt: fb.createdAt,
-      patient_details: fb.user_id
-        ? {
-            name: fb.user_id.name || fb.user_id.username || "ไม่พบชื่อ",
-            surname: fb.user_id.surname || "ไม่พบชื่อ",
-            fullName: `${fb.user_id.name || "ไม่พบชื่อ"} ${fb.user_id.surname || ""}`.trim(),
-          }
-        : null, // ถ้าไม่มี user_id ให้เป็น null
+      user_id: fb.user_id, // ส่งคืนข้อมูลผู้ใช้ที่ populate มาโดยตรง
     }));
-    
+  
 
     console.log("📌 ข้อมูล feedbacks ที่จะส่งกลับไป frontend:", formatted);
     
