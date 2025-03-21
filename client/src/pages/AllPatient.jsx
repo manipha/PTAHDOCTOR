@@ -63,33 +63,36 @@ const AllPatient = () => {
 
     // ✅ ดึง Feedbacks ของหมอที่ล็อกอิน
     useEffect(() => {
-        if (!doctorId) return;
-    
-        console.log(`🔍 ค่า selectedMonth ล่าสุด: ${selectedMonth}`); // ✅ ตรวจสอบว่าค่าเปลี่ยนหรือไม่
-    
+        if (!doctorId || !selectedMonth) return;
+      
+        console.log("📥 กำลังโหลดข้อมูลสำหรับ:");
+        console.log("📆 เดือน:", selectedMonth);
+        console.log("👨‍⚕️ หมอ:", doctorId);
+      
         const fetchDoctorFeedbacks = async () => {
-            console.log(`⏳ กำลังโหลด Feedback ของหมอ ID: ${doctorId} ในเดือน ${selectedMonth}...`);
-    
-            try {
-                const response = await customFetch.get("feedbacks/doctor-feedbacks", {
-                    params: { doctor_id: doctorId, month: selectedMonth },
-                });
-    
-                console.log("✅ Response จาก API:", response.data);
-                setDoctorFeedbacks(response.data.feedbacks || []);
-                setError(null);
-            } catch (error) {
-                console.error("❌ Error fetching doctor feedbacks:", error);
-                console.log("❌ API URL:", `/api/v1/feedbacks/doctor-feedbacks?doctor_id=${doctorId}&month=${selectedMonth}`);
-                toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน");
-                setError("เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน");
-            } finally {
-                setLoading(false);
-            }
+          try {
+            const url = `feedbacks/doctor-feedbacks?doctor_id=${doctorId}&month=${selectedMonth}`;
+            console.log("🌐 เรียก API URL:", url);
+      
+            const response = await customFetch.get("feedbacks/doctor-feedbacks", {
+              params: { doctor_id: doctorId, month: selectedMonth },
+            });
+      
+            console.log("✅ ได้ข้อมูล feedback:", response.data.feedbacks);
+            setDoctorFeedbacks(response.data.feedbacks || []);
+            setError(null);
+          } catch (error) {
+            console.error("❌ Error fetching doctor feedbacks:", error);
+            toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน");
+            setError("เกิดข้อผิดพลาดในการโหลดข้อมูลการประเมิน");
+          } finally {
+            setLoading(false);
+          }
         };
-    
+      
         fetchDoctorFeedbacks();
-    }, [doctorId, selectedMonth]); // ✅ ค่า selectedMonth เปลี่ยน ควรทำให้ useEffect ทำงาน
+      }, [doctorId, selectedMonth]);
+       // ✅ ค่า selectedMonth เปลี่ยน ควรทำให้ useEffect ทำงาน
     
 
     // ✅ สร้างตัวเลือกเดือน (ย้อนหลัง 12 เดือน)
@@ -97,14 +100,19 @@ const AllPatient = () => {
         const months = [];
         const today = new Date();
         for (let i = 0; i < 12; i++) {
-            const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const value = date.toISOString().slice(0, 7); // "YYYY-MM"
-            console.log(`📅 ตัวเลือกเดือน: ${value}`); // ✅ ตรวจสอบว่ามี 2025-03 จริงหรือไม่
+            const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - i, 1));
+            const year = date.getUTCFullYear();
+            const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // บวก 1 เพราะ getUTCMonth() เริ่มที่ 0
+            const value = `${year}-${month}`;
+    
+            console.log(`📅 ตัวเลือกเดือน (UTC): ${value}`);
+    
             const label = date.toLocaleString("th-TH", { year: "numeric", month: "long" });
             months.push({ value, label });
         }
         return months;
     };
+    
     
     return (
         <AllPatientContext.Provider value={{ data, searchValues, selectedMonth, setSelectedMonth, doctorFeedbacks }}>
@@ -123,13 +131,16 @@ const AllPatient = () => {
                 <div className="flex justify-center mt-4">
                     <label className="mr-2 text-lg">เลือกเดือน:</label>
                     <select
-    value={selectedMonth}
-    onChange={(e) => {
-        console.log(`📌 เปลี่ยนเดือนเป็น: ${e.target.value}`); // ✅ ดูว่าค่าถูกเปลี่ยนจริงไหม
-        setSelectedMonth(e.target.value);
-    }}
-    className="border p-2 rounded"
+  value={selectedMonth}
+  onChange={(e) => {
+    const newMonth = e.target.value;
+    console.log(`📌 เปลี่ยนเดือนเป็น: ${newMonth}`);
+    setSelectedMonth(newMonth);
+    setLoading(true); // 👈 เพิ่มตรงนี้ เพื่อให้ useEffect รู้ว่าเริ่มโหลดรอบใหม่
+  }}
+  className="border p-2 rounded"
 >
+
     {getMonthOptions().map((month) => (
         <option key={month.value} value={month.value}>
             {month.label}
@@ -145,7 +156,7 @@ const AllPatient = () => {
                     doctorFeedbacks.map((feedback, index) => (
                         <div key={feedback._id} className="border p-4 mt-4 rounded-lg shadow">
                             <div className="text-lg font-medium">
-                                {index + 1}. ผู้ป่วย: {feedback.patient_details?.name || "ไม่พบข้อมูลผู้ป่วย"}
+                                {index + 1}. ผู้ป่วย: {feedback.patient_details?.fullName  || "ไม่พบข้อมูลผู้ป่วย"}
                             </div>
                             <p className="text-gray-600">
                                 วันที่ตอบกลับ: {new Date(feedback.createdAt).toLocaleDateString("th-TH")}

@@ -143,46 +143,67 @@ export const getFeedbacksByDoctorId = async (req, res) => {
     const { doctor_id, month } = req.query;
 
     if (!doctor_id) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: "กรุณาระบุ doctor_id" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "กรุณาระบุ doctor_id" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(doctor_id)) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: "doctor_id ไม่ถูกต้อง" });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "doctor_id ไม่ถูกต้อง" });
     }
 
     const query = { doctor_id: new mongoose.Types.ObjectId(doctor_id) };
 
+    // ✅ Filter ตามเดือนที่เลือก
     if (month) {
-      const startOfMonth = new Date(`${month}-01T00:00:00.000Z`);
-      const endOfMonth = new Date(startOfMonth);
-      endOfMonth.setUTCMonth(startOfMonth.getUTCMonth() + 1);
-      endOfMonth.setUTCDate(1);
-      endOfMonth.setUTCDate(endOfMonth.getUTCDate() - 1);
-      endOfMonth.setUTCHours(23, 59, 59, 999);
-
+      const [year, monthIndex] = month.split("-").map(Number); // monthIndex เป็น 1-based (1=Jan)
+      const startOfMonth = new Date(Date.UTC(year, monthIndex - 1, 1, 0, 0, 0, 0));
+      const endOfMonth = new Date(Date.UTC(year, monthIndex, 0, 23, 59, 59, 999)); // วันที่ 0 ของเดือนถัดไปคือวันสุดท้ายของเดือนนี้
+    
       query.createdAt = { $gte: startOfMonth, $lte: endOfMonth };
     }
+    
 
+    // ✅ ดึงข้อมูล feedback พร้อมข้อมูลคนไข้
     const feedbacks = await FeedbacksModel.find(query)
-      .populate("user_id", "username name surname email")
-      .populate("doctor_id", "name surname")
+      .populate("user_id", "name surname ") // ✅ ดึงข้อมูลคนไข้
       .lean();
 
     if (!feedbacks.length) {
-      return res.status(StatusCodes.OK).json({ message: "ไม่พบข้อมูลการประเมิน", feedbacks: [] });
+      return res.status(StatusCodes.OK).json({
+        message: "ไม่พบข้อมูลการประเมิน",
+        feedbacks: [],
+      });
     }
 
-    // ✅ เพิ่ม patient_details จาก user_id
-    const formattedFeedbacks = feedbacks.map(fb => ({
-      ...fb,
-      patient_details: fb.user_id,
+    // ✅ จัด format ข้อมูลให้นำไปใช้บน frontend ได้ง่าย
+    const formatted = feedbacks.map((fb) => ({
+      _id: fb._id,
+      doctor_response: fb.doctor_response,
+      feedback_type: fb.feedback_type,
+      evaluation_date: fb.evaluation_date,
+      createdAt: fb.createdAt,
+      patient_details: fb.user_id
+        ? {
+            name: fb.user_id.name || "ไม่พบชื่อ",
+            surname: fb.user_id.surname || "",
+            fullName: `${fb.user_id.name || "ไม่พบชื่อ"} ${fb.user_id.surname || ""}`.trim(),
+          }
+        : null, // ถ้าไม่มี user_id ให้เป็น null
     }));
-
-    res.status(StatusCodes.OK).json({ feedbacks: formattedFeedbacks });
+    
+    console.log("📌 ข้อมูล feedbacks ที่จะส่งกลับไป frontend:", formatted);
+    
+    return res.status(StatusCodes.OK).json({ feedbacks: formatted });
+    
   } catch (error) {
+    console.error("❌ Error fetching feedbacks by doctor:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: "เกิดข้อผิดพลาดในการดึงข้อมูล",
       error: error.message,
     });
   }
 };
+
